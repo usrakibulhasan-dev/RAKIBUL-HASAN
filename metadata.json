@@ -1,0 +1,6 @@
+{
+  "name": "Talai Steel ERP",
+  "description": "Talai Al-Folath steel reinforcement cut-and-bend factory inventory management system",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
