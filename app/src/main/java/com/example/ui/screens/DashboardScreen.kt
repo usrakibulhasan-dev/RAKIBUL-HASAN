@@ -21,8 +21,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Assignment
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.CompareArrows
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FactCheck
@@ -221,6 +223,56 @@ fun DashboardScreen(
             }
         }
 
+        // Rebar Calculator Hero Feature Card
+        item {
+            IndustrialCard(
+                borderColor = IndustrialAmber,
+                containerColor = IndustrialAmber.copy(alpha = 0.08f)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .background(IndustrialAmber, CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Calculate, contentDescription = null, tint = Color.Black, modifier = Modifier.size(16.dp))
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "2-TON & BBS REBAR CALCULATOR",
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 13.sp,
+                                color = IndustrialAmber
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "• Input Weight (KG/MT) ➔ Get Full 2T Bundles & Loose Pieces\n• Input Pieces ➔ Get 2-Ton Receiving & BBS Delivery MT",
+                            fontSize = 11.sp,
+                            color = TextPrimary,
+                            lineHeight = 16.sp
+                        )
+                    }
+
+                    Button(
+                        onClick = { onNavigate("calculator") },
+                        colors = ButtonDefaults.buttonColors(containerColor = IndustrialAmber),
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.testTag("btn_hero_calculator")
+                    ) {
+                        Text("Calculate", fontWeight = FontWeight.Bold, color = Color.Black, fontSize = 11.sp)
+                    }
+                }
+            }
+        }
+
         // Quick Operations Action Row
         item {
             SectionHeader(title = "Factory Operations & Actions", icon = Icons.Default.Build)
@@ -228,6 +280,14 @@ fun DashboardScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                QuickActionButton(
+                    icon = Icons.Default.Calculate,
+                    label = "Calculator",
+                    accent = IndustrialAmber,
+                    modifier = Modifier.weight(1f),
+                    testTag = "btn_nav_calculator"
+                ) { onNavigate("calculator") }
+
                 QuickActionButton(
                     icon = Icons.Default.AddShoppingCart,
                     label = "Receive 2T",
@@ -245,20 +305,12 @@ fun DashboardScreen(
                 ) { onNavigate("delivery") }
 
                 QuickActionButton(
-                    icon = Icons.Default.Assignment,
-                    label = "Cut & Bend",
+                    icon = Icons.Default.Assessment,
+                    label = "Raw Reports",
                     accent = EpoxyGreen,
                     modifier = Modifier.weight(1f),
-                    testTag = "btn_nav_mfg"
-                ) { onNavigate("production") }
-
-                QuickActionButton(
-                    icon = Icons.Default.SwapHoriz,
-                    label = "Transfer",
-                    accent = AlertWarning,
-                    modifier = Modifier.weight(1f),
-                    testTag = "btn_nav_transfer"
-                ) { onNavigate("transfer") }
+                    testTag = "btn_nav_raw_reports"
+                ) { onNavigate("reports") }
             }
         }
 

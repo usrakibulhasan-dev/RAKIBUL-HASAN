@@ -188,6 +188,121 @@ object RebarCalculator {
         )
     }
 
+    /**
+     * Weight to 2-TON Bundles and Pieces Converter
+     * User inputs Weight (KG or MT) -> Computes Total Pieces, Full 2-Ton Bundles, and Loose Pieces
+     */
+    data class WeightToBundleResult(
+        val inputWeightKg: Double,
+        val inputWeightMt: Double,
+        val singleBarWeightKg: Double,
+        val totalPieces: Int,
+        val full2TonBundles: Int,
+        val loosePieces: Int,
+        val standardBundlePcs: Int,
+        val exactCalculatedWeightKg: Double,
+        val exactCalculatedWeightMt: Double,
+        val weightVarianceKg: Double
+    )
+
+    fun calculateWeightTo2TonBundles(
+        diameterMm: Int,
+        weightKg: Double,
+        lengthM: Double = 12.0,
+        isEpoxy: Boolean = false
+    ): WeightToBundleResult {
+        val unitWeight = getUnitWeight(diameterMm, isEpoxy)
+        val singleBarWeightKg = round(lengthM * unitWeight, 3)
+        val totalPieces = if (singleBarWeightKg > 0) (weightKg / singleBarWeightKg).roundToInt() else 0
+        val pcsPerBundle = getPiecesPer2TonBundle(diameterMm)
+        val fullBundles = if (pcsPerBundle > 0) totalPieces / pcsPerBundle else 0
+        val loosePieces = if (pcsPerBundle > 0) totalPieces % pcsPerBundle else 0
+
+        val exactKg = round(totalPieces * singleBarWeightKg, 2)
+        val exactMt = round(exactKg / 1000.0, 3)
+        val varianceKg = round(exactKg - weightKg, 2)
+
+        return WeightToBundleResult(
+            inputWeightKg = round(weightKg, 2),
+            inputWeightMt = round(weightKg / 1000.0, 3),
+            singleBarWeightKg = singleBarWeightKg,
+            totalPieces = totalPieces,
+            full2TonBundles = fullBundles,
+            loosePieces = loosePieces,
+            standardBundlePcs = pcsPerBundle,
+            exactCalculatedWeightKg = exactKg,
+            exactCalculatedWeightMt = exactMt,
+            weightVarianceKg = varianceKg
+        )
+    }
+
+    /**
+     * Pieces to 2-Ton Receiving & BBS Delivery Converter
+     * User inputs Pieces -> Shows both 2-Ton standard Receiving conversion and BBS Delivery conversion
+     */
+    data class PiecesConversionResult(
+        val totalPieces: Int,
+        val diameterMm: Int,
+        // As per 2-Ton Receiving (12.00m Standard Bars)
+        val receivingFullBundles: Int,
+        val receivingLoosePieces: Int,
+        val receivingFractionalBundles: Double,
+        val pcsPer2TonBundle: Int,
+        val receivingWeightKg: Double,
+        val receivingWeightMt: Double,
+        // As per BBS Delivery (Custom Cut Lengths & Schedules)
+        val bbsCutLengthM: Double,
+        val bbsTotalLengthM: Double,
+        val bbsWeightKg: Double,
+        val bbsWeightMt: Double,
+        val bbsBundleCount: Int,
+        val bbsLoosePieces: Int,
+        val bbsFractionalBundles: Double
+    )
+
+    fun calculatePiecesTo2TonAndBbs(
+        diameterMm: Int,
+        totalPieces: Int,
+        standardLengthM: Double = 12.0,
+        bbsCutLengthM: Double = 5.80,
+        isEpoxy: Boolean = false
+    ): PiecesConversionResult {
+        val unitWeight = getUnitWeight(diameterMm, isEpoxy)
+        val pcsPer2Ton = getPiecesPer2TonBundle(diameterMm)
+        val recvFullBundles = if (pcsPer2Ton > 0) totalPieces / pcsPer2Ton else 0
+        val recvLoosePieces = if (pcsPer2Ton > 0) totalPieces % pcsPer2Ton else 0
+        val recvFractional = if (pcsPer2Ton > 0) round(totalPieces.toDouble() / pcsPer2Ton.toDouble(), 3) else 0.0
+
+        val recvKg = round(totalPieces * standardLengthM * unitWeight, 2)
+        val recvMt = round(recvKg / 1000.0, 3)
+
+        // BBS Delivery Calculation
+        val bbsTotalLen = round(totalPieces * bbsCutLengthM, 2)
+        val bbsKg = round(bbsTotalLen * unitWeight, 2)
+        val bbsMt = round(bbsKg / 1000.0, 3)
+        val bbsBundles = if (pcsPer2Ton > 0) totalPieces / pcsPer2Ton else 0
+        val bbsLoose = if (pcsPer2Ton > 0) totalPieces % pcsPer2Ton else 0
+        val bbsFractional = if (pcsPer2Ton > 0) round(totalPieces.toDouble() / pcsPer2Ton.toDouble(), 3) else 0.0
+
+        return PiecesConversionResult(
+            totalPieces = totalPieces,
+            diameterMm = diameterMm,
+            receivingFullBundles = recvFullBundles,
+            receivingLoosePieces = recvLoosePieces,
+            receivingFractionalBundles = recvFractional,
+            pcsPer2TonBundle = pcsPer2Ton,
+            receivingWeightKg = recvKg,
+            receivingWeightMt = recvMt,
+            bbsCutLengthM = bbsCutLengthM,
+            bbsTotalLengthM = bbsTotalLen,
+            bbsWeightKg = bbsKg,
+            bbsWeightMt = bbsMt,
+            bbsBundleCount = bbsBundles,
+            bbsLoosePieces = bbsLoose,
+            bbsFractionalBundles = bbsFractional
+        )
+    }
+
     fun round(value: Double, places: Int): Double {
         if (value.isNaN() || value.isInfinite()) return 0.0
         return BigDecimal.valueOf(value).setScale(places, RoundingMode.HALF_UP).toDouble()

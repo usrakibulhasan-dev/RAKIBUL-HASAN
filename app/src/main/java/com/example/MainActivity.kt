@@ -18,7 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.FactCheck
 import androidx.compose.material.icons.filled.Inventory2
@@ -59,9 +61,11 @@ import com.example.ui.screens.BbsDeliveryScreen
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.ExcelImportExportScreen
 import com.example.ui.screens.ProductionScreen
+import com.example.ui.screens.RebarCalculatorScreen
 import com.example.ui.screens.ReceivingScreen
 import com.example.ui.screens.ReconciliationScreen
 import com.example.ui.screens.StockLedgerScreen
+import com.example.ui.screens.StockReportsScreen
 import com.example.ui.screens.StockSummaryScreen
 import com.example.ui.screens.TransferAdjustmentScreen
 import com.example.ui.theme.EpoxyGreen
@@ -187,6 +191,21 @@ fun MainAppScreen() {
                 )
 
                 NavigationBarItem(
+                    selected = currentScreen == "calculator",
+                    onClick = { currentScreen = "calculator" },
+                    icon = { Icon(Icons.Default.Calculate, contentDescription = "Rebar Calculator") },
+                    label = { Text("Calculator", fontSize = 10.sp) },
+                    modifier = Modifier.testTag("nav_calculator"),
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = IndustrialAmber,
+                        selectedTextColor = IndustrialAmber,
+                        indicatorColor = IndustrialAmber.copy(alpha = 0.15f),
+                        unselectedIconColor = TextSecondary,
+                        unselectedTextColor = TextSecondary
+                    )
+                )
+
+                NavigationBarItem(
                     selected = currentScreen == "receiving",
                     onClick = { currentScreen = "receiving" },
                     icon = { Icon(Icons.Default.AddShoppingCart, contentDescription = "Receiving") },
@@ -205,7 +224,7 @@ fun MainAppScreen() {
                     selected = currentScreen == "delivery",
                     onClick = { currentScreen = "delivery" },
                     icon = { Icon(Icons.Default.LocalShipping, contentDescription = "Delivery BBS") },
-                    label = { Text("Delivery BBS", fontSize = 10.sp) },
+                    label = { Text("BBS Delivery", fontSize = 10.sp) },
                     modifier = Modifier.testTag("nav_delivery"),
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = SteelBlue,
@@ -217,30 +236,15 @@ fun MainAppScreen() {
                 )
 
                 NavigationBarItem(
-                    selected = currentScreen == "production",
-                    onClick = { currentScreen = "production" },
-                    icon = { Icon(Icons.Default.Build, contentDescription = "Cut & Bend") },
-                    label = { Text("Mfg", fontSize = 10.sp) },
-                    modifier = Modifier.testTag("nav_production"),
+                    selected = currentScreen == "reports",
+                    onClick = { currentScreen = "reports" },
+                    icon = { Icon(Icons.Default.Assessment, contentDescription = "Raw Stock Reports") },
+                    label = { Text("Raw Reports", fontSize = 10.sp) },
+                    modifier = Modifier.testTag("nav_reports"),
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = EpoxyGreen,
                         selectedTextColor = EpoxyGreen,
                         indicatorColor = EpoxyGreen.copy(alpha = 0.15f),
-                        unselectedIconColor = TextSecondary,
-                        unselectedTextColor = TextSecondary
-                    )
-                )
-
-                NavigationBarItem(
-                    selected = currentScreen == "stock_summary",
-                    onClick = { currentScreen = "stock_summary" },
-                    icon = { Icon(Icons.Default.Inventory2, contentDescription = "Balances") },
-                    label = { Text("Stock", fontSize = 10.sp) },
-                    modifier = Modifier.testTag("nav_stock_summary"),
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = IndustrialAmber,
-                        selectedTextColor = IndustrialAmber,
-                        indicatorColor = IndustrialAmber.copy(alpha = 0.15f),
                         unselectedIconColor = TextSecondary,
                         unselectedTextColor = TextSecondary
                     )
@@ -273,6 +277,14 @@ fun MainAppScreen() {
                 "dashboard" -> DashboardScreen(
                     viewModel = viewModel,
                     onNavigate = { route -> currentScreen = route }
+                )
+                "calculator" -> RebarCalculatorScreen(
+                    onNavigateToReceiving = { currentScreen = "receiving" },
+                    onNavigateToDelivery = { currentScreen = "delivery" }
+                )
+                "reports" -> StockReportsScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = { currentScreen = "dashboard" }
                 )
                 "receiving" -> ReceivingScreen(
                     viewModel = viewModel,

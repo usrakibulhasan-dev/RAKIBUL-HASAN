@@ -153,4 +153,71 @@ class RebarCalculationAndInventoryTest {
         assertEquals(0.0, yield.varianceKg, 0.01)
         assertEquals(4.0, yield.scrapPercentage, 0.01)
     }
+
+    @Test
+    fun testWeightTo2TonBundlesAndPiecesConversion() {
+        // Input: 10,020 KG of 12mm rebar (12.0m standard bars)
+        // 12m bar = 12 * 0.888 = 10.656 kg
+        // Total pieces = 10020 / 10.656 = 940 pieces
+        // Standard 2T bundle for 12mm = 188 pcs
+        // Full bundles = 940 / 188 = 5 full bundles, 0 loose pieces
+        val result = RebarCalculator.calculateWeightTo2TonBundles(
+            diameterMm = 12,
+            weightKg = 10020.0,
+            lengthM = 12.0,
+            isEpoxy = false
+        )
+
+        assertEquals(940, result.totalPieces)
+        assertEquals(5, result.full2TonBundles)
+        assertEquals(0, result.loosePieces)
+        assertEquals(188, result.standardBundlePcs)
+        assertEquals(10016.64, result.exactCalculatedWeightKg, 0.01)
+        assertEquals(10.017, result.exactCalculatedWeightMt, 0.001)
+    }
+
+    @Test
+    fun testWeightToBundlesWithRemainderLoosePieces() {
+        // Input: 5,000 KG of 16mm rebar (12m bar = 18.936 kg)
+        // Total pieces = 5000 / 18.936 = 264 pieces
+        // Standard 2T bundle for 16mm = 106 pcs
+        // Full 2T bundles = 2 (212 pcs)
+        // Loose pieces = 264 - 212 = 52 pcs
+        val result = RebarCalculator.calculateWeightTo2TonBundles(
+            diameterMm = 16,
+            weightKg = 5000.0,
+            lengthM = 12.0,
+            isEpoxy = false
+        )
+
+        assertEquals(264, result.totalPieces)
+        assertEquals(2, result.full2TonBundles)
+        assertEquals(52, result.loosePieces)
+        assertEquals(106, result.standardBundlePcs)
+        assertEquals(4999.10, result.exactCalculatedWeightKg, 0.1)
+    }
+
+    @Test
+    fun testPiecesTo2TonAndBbsDeliveryConversion() {
+        // 940 pieces of 12mm rebar
+        // As per 2-Ton standard: 5 bundles, 0 loose, 10.017 MT
+        // As per BBS delivery at 5.80m cut length:
+        // Total meters = 940 * 5.8 = 5,452.00 m
+        // Delivery weight = 5,452 * 0.888 = 4,841.38 kg = 4.841 MT
+        val res = RebarCalculator.calculatePiecesTo2TonAndBbs(
+            diameterMm = 12,
+            totalPieces = 940,
+            standardLengthM = 12.0,
+            bbsCutLengthM = 5.80,
+            isEpoxy = false
+        )
+
+        assertEquals(940, res.totalPieces)
+        assertEquals(5, res.receivingFullBundles)
+        assertEquals(0, res.receivingLoosePieces)
+        assertEquals(10.017, res.receivingWeightMt, 0.001)
+        assertEquals(5452.00, res.bbsTotalLengthM, 0.01)
+        assertEquals(4841.38, res.bbsWeightKg, 0.01)
+        assertEquals(4.841, res.bbsWeightMt, 0.001)
+    }
 }

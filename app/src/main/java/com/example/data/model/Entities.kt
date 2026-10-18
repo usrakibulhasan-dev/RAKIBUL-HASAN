@@ -198,3 +198,89 @@ data class OfflineDraftEntity(
     val status: String = "DRAFT", // DRAFT, SYNCED, ERROR
     val createdAt: Long = System.currentTimeMillis()
 )
+
+/**
+ * Dedicated Raw Material Inventory Entity (2-TON Standard)
+ * Specialized for steel cut-and-bend factory receiving and stock tracking.
+ */
+@Entity(
+    tableName = "raw_material_inventory",
+    indices = [
+        Index(
+            value = ["companyCode", "locationCode", "diameterMm", "standardLengthM", "grade", "finish", "batchNumber"],
+            unique = true
+        ),
+        Index(value = ["batchNumber"]),
+        Index(value = ["dnNumber"])
+    ]
+)
+data class RawMaterialInventoryEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val companyCode: String,
+    val supplierOrigin: String,
+    val locationCode: String,
+    val diameterMm: Int,
+    val standardLengthM: Double = 12.0,
+    val grade: String,
+    val finish: String, // BLACK or EPOXY_GREEN
+    val batchNumber: String,
+    val heatNumber: String,
+    val full2TonBundles: Int,
+    val loosePieces: Int,
+    val totalPieces: Int,
+    val unitWeightKgPerM: Double,
+    val singleBarWeightKg: Double,
+    val balanceKg: Double,
+    val balanceMt: Double,
+    val poNumber: String = "",
+    val dnNumber: String = "",
+    val receivingDate: String = "",
+    val lastUpdated: Long = System.currentTimeMillis()
+)
+
+/**
+ * Dedicated BBS-Based Delivery Record Entity
+ * Captures project-specific cut-and-bend rebar delivery schedules and dispatch notes.
+ */
+@Entity(
+    tableName = "bbs_delivery_records",
+    indices = [
+        Index(value = ["deliveryNoteNumber"], unique = true),
+        Index(value = ["bbsReference"]),
+        Index(value = ["customerName"]),
+        Index(value = ["batchNumber"]),
+        Index(value = ["deliveryDate"])
+    ]
+)
+data class BbsDeliveryRecordEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val deliveryNoteNumber: String,
+    val customerName: String,
+    val projectName: String,
+    val bbsReference: String,
+    val barMark: String = "M-01",
+    val shapeCode: String = "00",
+    val diameterMm: Int,
+    val cutLengthM: Double,
+    val requiredPieces: Int,
+    val totalLengthM: Double,
+    val grade: String,
+    val finish: String, // BLACK or EPOXY_GREEN
+    val companyCode: String,
+    val sourceLocation: String,
+    val batchNumber: String,
+    val heatNumber: String,
+    val bundleCount: Int,
+    val loosePieces: Int,
+    val weightKg: Double,
+    val weightMt: Double,
+    val actualScaleWeightKg: Double? = null,
+    val deliveryDate: String,
+    val driverName: String = "",
+    val vehicleNumber: String = "",
+    val status: String = "DELIVERED",
+    val dispatchedByUser: String,
+    val notes: String = "",
+    val createdAt: Long = System.currentTimeMillis()
+)
+
